@@ -9,9 +9,21 @@ import (
 	"unicode"
 )
 
+// TokenKind type, enum of ints
+type TokenKind int
+
+const (
+	// Num token kind
+	Num TokenKind = 0
+	// Operator token kind
+	Operator TokenKind = 1
+	// Paren token kind
+	Paren TokenKind = 2
+)
+
 // Token contains value and kind of token
 type Token struct {
-	Kind  string
+	Kind  TokenKind
 	Value string
 }
 
@@ -60,15 +72,15 @@ func Scan(src string) ([]*Token, error) {
 			continue
 		}
 		if isNumber(tstring) {
-			tokens = append(tokens, &Token{Kind: "num", Value: tstring})
+			tokens = append(tokens, &Token{Kind: Num, Value: tstring})
 			continue
 		}
 		if isOperator(tstring) {
-			tokens = append(tokens, &Token{Kind: "operator", Value: tstring})
+			tokens = append(tokens, &Token{Kind: Operator, Value: tstring})
 			continue
 		}
 		if isParen(tstring) {
-			tokens = append(tokens, &Token{Kind: "paren", Value: tstring})
+			tokens = append(tokens, &Token{Kind: Paren, Value: tstring})
 			continue
 		}
 		return nil, fmt.Errorf("Syntax error, not expected token: %s", tstring)
