@@ -19,6 +19,8 @@ const (
 	Operator TokenKind = 1
 	// Paren token kind
 	Paren TokenKind = 2
+	// End token kind
+	End TokenKind = 3
 )
 
 // Token contains value and kind of token
