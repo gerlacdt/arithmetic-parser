@@ -26,7 +26,7 @@ result: 4
 
 ### Development
 
-This project ships with a *Makefile**.
+This project ships with a *Makefile*.
 
 ```bash
 # build project
