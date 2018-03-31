@@ -11,16 +11,16 @@ func TestAdvance(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error scanning: %v\n", err)
 	}
-	p := &Parser{tokens: tokens, lookahead: nil}
+	p := &Parser{Tokens: tokens, Lookahead: nil}
 
 	p.advance()
-	if p.lookahead.Value != "100" {
-		t.Errorf("advance, expected: %s, got: %s", "100", p.lookahead.Value)
+	if p.Lookahead.Value != "100" {
+		t.Errorf("advance, expected: %s, got: %s", "100", p.Lookahead.Value)
 	}
 
 	p.advance()
-	if p.lookahead.Kind != End {
-		t.Errorf("advance: expected: %v, got: %v", End, p.lookahead.Kind)
+	if p.Lookahead.Kind != End {
+		t.Errorf("advance: expected: %v, got: %v", End, p.Lookahead.Kind)
 	}
 }
 
@@ -51,7 +51,7 @@ func TestParserTable(t *testing.T) {
 				t.Fatalf("Error scanning: %v\n", err)
 			}
 			// printTokens(tokens)
-			p := &Parser{tokens: tokens, lookahead: nil}
+			p := &Parser{Tokens: tokens, Lookahead: nil}
 			result, err := p.Parse()
 			if err != nil {
 				if err.Error() != tc.err.Error() {

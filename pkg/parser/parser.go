@@ -17,8 +17,8 @@ import (
 
 // Parser parses the given tokens
 type Parser struct {
-	tokens    []*Token
-	lookahead *Token
+	Tokens    []*Token
+	Lookahead *Token
 }
 
 // Parse the given tokens and return result of arithmetic expression
@@ -40,7 +40,7 @@ func (p *Parser) exp() (int, error) {
 }
 
 func (p *Parser) expD(inherited int) (int, error) {
-	if p.lookahead.Value == "+" {
+	if p.Lookahead.Value == "+" {
 		err := p.match(&Token{Kind: Operator, Value: "+"})
 		if err != nil {
 			return 0, err
@@ -51,7 +51,7 @@ func (p *Parser) expD(inherited int) (int, error) {
 		}
 		return inherited + expResult, nil
 	}
-	if p.lookahead.Value == "-" {
+	if p.Lookahead.Value == "-" {
 		err := p.match(&Token{Kind: Operator, Value: "-"})
 		if err != nil {
 			return 0, err
@@ -78,7 +78,7 @@ func (p *Parser) term() (int, error) {
 }
 
 func (p *Parser) termD(inherited int) (int, error) {
-	if p.lookahead.Value == "*" {
+	if p.Lookahead.Value == "*" {
 		err := p.match(&Token{Kind: Operator, Value: "*"})
 		if err != nil {
 			return 0, err
@@ -89,7 +89,7 @@ func (p *Parser) termD(inherited int) (int, error) {
 		}
 		return inherited * val, nil
 	}
-	if p.lookahead.Value == "/" {
+	if p.Lookahead.Value == "/" {
 		err := p.match(&Token{Kind: Operator, Value: "/"})
 		if err != nil {
 			return 0, err
@@ -104,15 +104,15 @@ func (p *Parser) termD(inherited int) (int, error) {
 }
 
 func (p *Parser) factor() (int, error) {
-	if p.lookahead.Kind == Num {
-		val, _ := strconv.Atoi(p.lookahead.Value)
-		err := p.match(p.lookahead)
+	if p.Lookahead.Kind == Num {
+		val, _ := strconv.Atoi(p.Lookahead.Value)
+		err := p.match(p.Lookahead)
 		if err != nil {
 			return 0, err
 		}
 		return val, nil
 	}
-	if p.lookahead.Value == "(" {
+	if p.Lookahead.Value == "(" {
 		err := p.match(&Token{Kind: Paren, Value: "("})
 		if err != nil {
 			return 0, err
@@ -127,16 +127,16 @@ func (p *Parser) factor() (int, error) {
 		}
 		return val, nil
 	}
-	return 0, fmt.Errorf("error during parsing factor, lookahead: %v", p.lookahead)
+	return 0, fmt.Errorf("error during parsing factor, lookahead: %v", p.Lookahead)
 }
 
 func (p *Parser) advance() {
-	if len(p.tokens) < 1 {
-		p.lookahead = &Token{Kind: End, Value: ""}
-		p.tokens = make([]*Token, 0)
+	if len(p.Tokens) < 1 {
+		p.Lookahead = &Token{Kind: End, Value: ""}
+		p.Tokens = make([]*Token, 0)
 		return
 	}
-	p.lookahead, p.tokens = p.tokens[0], p.tokens[1:]
+	p.Lookahead, p.Tokens = p.Tokens[0], p.Tokens[1:]
 }
 
 func (p *Parser) match(tok *Token) error {
@@ -144,8 +144,8 @@ func (p *Parser) match(tok *Token) error {
 		p.advance()
 		return nil
 	}
-	if tok.Value != p.lookahead.Value {
-		return fmt.Errorf("error lookahead match; lookahead: %s, current: %v", p.lookahead.Value, tok)
+	if tok.Value != p.Lookahead.Value {
+		return fmt.Errorf("error lookahead match; lookahead: %s, current: %v", p.Lookahead.Value, tok)
 	}
 	p.advance()
 	return nil
