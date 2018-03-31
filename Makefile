@@ -8,7 +8,7 @@ start: build
 	./app
 
 test:
-	go test ./... -v
+	go test ./...
 
 test-no-cache:
-	go test ./... -v -count 1
+	go test ./... -count 1

@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 )
 
 // <Exp> ::= <Term> <Exp'>
@@ -21,73 +22,112 @@ type Parser struct {
 }
 
 // Parse the given tokens and return result of arithmetic expression
-func (p *Parser) Parse() (err interface{}) {
-	defer func() {
-		if err = recover(); err != nil {
-			return
-		}
-	}()
+func (p *Parser) Parse() (int, error) {
 	p.advance()
-	p.exp()
-	return
+	return p.exp()
 }
 
-func (p *Parser) exp() {
-	p.term()
-	p.expD()
+func (p *Parser) exp() (int, error) {
+	val, err := p.term()
+	if err != nil {
+		return 0, err
+	}
+	result, err := p.expD(val)
+	if err != nil {
+		return 0, err
+	}
+	return result, nil
 }
 
-func (p *Parser) expD() {
-	fmt.Printf("in expD, lookahead: %v\n", p.lookahead)
+func (p *Parser) expD(inherited int) (int, error) {
 	if p.lookahead.Value == "+" {
-		p.match(&Token{Kind: Operator, Value: "+"})
-		p.exp()
-		return
+		err := p.match(&Token{Kind: Operator, Value: "+"})
+		if err != nil {
+			return 0, err
+		}
+		expResult, err := p.exp()
+		if err != nil {
+			return 0, err
+		}
+		return inherited + expResult, nil
 	}
 	if p.lookahead.Value == "-" {
-		p.match(&Token{Kind: Operator, Value: "-"})
-		p.exp()
-		return
+		err := p.match(&Token{Kind: Operator, Value: "-"})
+		if err != nil {
+			return 0, err
+		}
+		expResult, err := p.exp()
+		if err != nil {
+			return 0, err
+		}
+		return inherited - expResult, nil
 	}
-	if p.lookahead.Kind == End {
-		return
-	}
+	return inherited, nil
 }
 
-func (p *Parser) term() {
-	p.factor()
-	p.termD()
+func (p *Parser) term() (int, error) {
+	val, err := p.factor()
+	if err != nil {
+		return 0, err
+	}
+	result, err := p.termD(val)
+	if err != nil {
+		return 0, err
+	}
+	return result, nil
 }
 
-func (p *Parser) termD() {
-	fmt.Printf("in termD, lookahead: %v\n", p.lookahead)
+func (p *Parser) termD(inherited int) (int, error) {
 	if p.lookahead.Value == "*" {
-		p.match(&Token{Kind: Operator, Value: "*"})
-		p.term()
-		return
+		err := p.match(&Token{Kind: Operator, Value: "*"})
+		if err != nil {
+			return 0, err
+		}
+		val, err := p.term()
+		if err != nil {
+			return 0, err
+		}
+		return inherited * val, nil
 	}
 	if p.lookahead.Value == "/" {
-		p.match(&Token{Kind: Operator, Value: "/"})
-		p.term()
-		return
+		err := p.match(&Token{Kind: Operator, Value: "/"})
+		if err != nil {
+			return 0, err
+		}
+		val, err := p.term()
+		if err != nil {
+			return 0, err
+		}
+		return inherited / val, nil
 	}
-	if p.lookahead.Kind == End {
-		return
-	}
+	return inherited, nil
 }
 
-func (p *Parser) factor() {
-	fmt.Printf("in factor, lookahead: %v\n", p.lookahead)
+func (p *Parser) factor() (int, error) {
 	if p.lookahead.Kind == Num {
-		p.match(p.lookahead)
-		return
+		val, _ := strconv.Atoi(p.lookahead.Value)
+		err := p.match(p.lookahead)
+		if err != nil {
+			return 0, err
+		}
+		return val, nil
 	}
 	if p.lookahead.Value == "(" {
-		p.match(&Token{Kind: Paren, Value: "("})
-		p.exp()
-		p.match(&Token{Kind: Paren, Value: ")"})
-		return
+		err := p.match(&Token{Kind: Paren, Value: "("})
+		if err != nil {
+			return 0, err
+		}
+		val, err := p.exp()
+		if err != nil {
+			return 0, err
+		}
+		err = p.match(&Token{Kind: Paren, Value: ")"})
+		if err != nil {
+			return 0, err
+		}
+		return val, nil
 	}
+	return 0, fmt.Errorf("error during parsing factor, lookahead: %v", p.lookahead)
 }
 
 func (p *Parser) advance() {
@@ -99,13 +139,14 @@ func (p *Parser) advance() {
 	p.lookahead, p.tokens = p.tokens[0], p.tokens[1:]
 }
 
-func (p *Parser) match(tok *Token) {
+func (p *Parser) match(tok *Token) error {
 	if tok.Kind == Num {
 		p.advance()
-		return
+		return nil
 	}
 	if tok.Value != p.lookahead.Value {
-		panic(fmt.Sprintf("error lookahead match; lookahead: %s, current: %v", p.lookahead.Value, tok))
+		return fmt.Errorf("error lookahead match; lookahead: %s, current: %v", p.lookahead.Value, tok)
 	}
 	p.advance()
+	return nil
 }
