@@ -2,10 +2,10 @@
 
 
 build:
-	go build -o app cmd/main.go
+	go build -o evaluator cmd/evaluator.go
 
 start: build
-	./app
+	./evaluator
 
 test:
 	go test ./...
